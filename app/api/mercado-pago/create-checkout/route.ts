@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
           }
         ],
         payment_methods: {
-          installments: 12,
+          installments: 12, //quantidade de parcelas
+          // default_installments: 1, // quantidade de parcelas padrão
           // excluded_payment_methods: [
           //   { id: 'bolbradesco' },
           //   { id: 'pec' }
@@ -36,6 +37,9 @@ export async function POST(req: NextRequest) {
           //   { id: 'debit_card' },
           //   { id: 'credit_card' }
           // ]
+          // default_payment_method: 'credit_card',
+          // default_payment_type: 'credit_card',
+          
         },
         auto_return: 'approved',
         back_urls: {
