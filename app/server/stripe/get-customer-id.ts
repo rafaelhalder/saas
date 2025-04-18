@@ -1,38 +1,39 @@
 import { db } from "@/app/lib/firebase";
 import stripe from "@/app/lib/stripe";
-import "server-only"
+import "server-only";
 
-export async function getOrCreateCustomer(userId:string,userEmail:string) {
-  try {
-    const userRef = db.collection("users").doc(userId);
-    const userDoc = await userRef.get();
-    if (!userDoc.exists) {
-      throw new Error("User not found");
-    }
-    const stripeCustomerId = userDoc.data()?.stripeCustomerId;
-    if (stripeCustomerId) {
-      return stripeCustomerId;
-    }
+export async function getOrCreateCustomer(userId: string, userEmail: string) {
+	try {
+		const userRef = db.collection("users").doc(userId);
+		const userDoc = await userRef.get();
 
-    const userName = userDoc.data()?.name;
+		if (!userDoc.exists) {
+			throw new Error("User not found");
+		}
 
-    const stripeCustomer = await stripe.customers.create({
-      email: userEmail,
-      ...(userName && { name: userName }),
-      metadata:{
-        userId
-      }
-    });
+		const stripeCustomerId = userDoc.data()?.stripeCustomerId;
 
-    await userRef.update({
-      stripeCustomerId: stripeCustomer.id,
-    })
-    return stripeCustomer.id;
+		if (stripeCustomerId) {
+			return stripeCustomerId;
+		}
 
-  } catch (error) {
-    console.error("Error getting or creating customer:", error);
-    throw new Error("Error getting or creating customer");
-    
-  }
-  
+		const userName = userDoc.data()?.name;
+
+		const stripeCustomer = await stripe.customers.create({
+			email: userEmail,
+			...(userName && { name: userName }),
+			metadata: {
+				userId,
+			},
+		});
+
+		await userRef.update({
+			stripeCustomerId: stripeCustomer.id,
+		});
+
+		return stripeCustomer.id;
+	} catch (e) {
+		console.error(e);
+		throw new Error("Failed to get or create customer");
+	}
 }
